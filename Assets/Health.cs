@@ -6,7 +6,7 @@ public class Health : MonoBehaviour
 {
     public int currentHealth;
     bool IsDead;
-    public int currentStamina
+    public int currentStamina;
 
     // Start is called before the first frame update
     void Start()
