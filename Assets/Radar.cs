@@ -6,10 +6,12 @@ public class Radar : MonoBehaviour
 {
 
     public List<GameObject> bodys = new List<GameObject>();
+    public GameObject target;
     [SerializeField] int blues;
     [SerializeField] int reds;
     public bool Attack;
     [SerializeField] bool IsRed;
+    int sizeOfList;
 
     // Start is called before the first frame update
     void Start()
@@ -20,18 +22,20 @@ public class Radar : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (bodys.GetRange == 0)
+        sizeOfList = bodys.Count;
+        if (sizeOfList <= 0)
         {
             blues = 0;
             reds = 0;
         }
-        if(IsRed == true)
+        if (IsRed == true)
         {
-            if(reds >= blues)
+            if (reds >= blues)
             {
                 Attack = true;
-            }else
-                if(reds < blues)
+
+            } else
+                if (reds < blues)
             {
                 Attack = false;
             }
@@ -55,32 +59,59 @@ public class Radar : MonoBehaviour
         if (other.gameObject.tag == "Character")
         {
             if (!bodys.Contains(other.gameObject)) bodys.Add(other.gameObject);
+            if (other.GetComponent<Allegiance>().RedTeam == true)
+            {
+                
+               
+                reds++;
+            }
+            else
+            if (other.GetComponent<Allegiance>().RedTeam == false)
+            {
+                blues++;
+            }
+            if (Attack == true)
+            {
+                target = other.gameObject;
+            }
+
+
+
         }
-        AssignSides();
+        //   AssignSides();
     }
     void OnTriggerExit(Collider other)
     {
         if (other.gameObject.tag == "Character")
         {
             if (bodys.Contains(other.gameObject)) bodys.Remove(other.gameObject);
+            if (other.GetComponent<Allegiance>().RedTeam == true)
+                reds--;
         }
-        RemoveSides();
+        else
+            if (other.GetComponent<Allegiance>().RedTeam == false)
+        {
+            blues--;
+        }
+        //  RemoveSides();
     }
+
+
 
     void AssignSides()
     {
-        foreach (GameObject ObjectBody in bodys)
-        {
+       foreach (GameObject ObjectBody in bodys)
+       {
            if( ObjectBody.GetComponent<Allegiance>().RedTeam == true)
-            {
-                blues  ++;
+            { 
+                reds++;
             }
             else
             if (ObjectBody.GetComponent<Allegiance>().RedTeam == false)
             {
-                reds  ++;
+                blues++;
             }
-        }
+       }
 
     }
     void RemoveSides()
@@ -100,3 +131,5 @@ public class Radar : MonoBehaviour
 
     }
 }
+
+
