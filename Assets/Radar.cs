@@ -10,8 +10,9 @@ public class Radar : MonoBehaviour
     [SerializeField] int blues;
     [SerializeField] int reds;
     public bool Attack;
-    [SerializeField] bool IsRed;
+    public bool IsRed;
     int sizeOfList;
+    bool tripCoroutine;
 
     // Start is called before the first frame update
     void Start()
@@ -25,44 +26,78 @@ public class Radar : MonoBehaviour
         sizeOfList = bodys.Count;
         if (sizeOfList <= 0)
         {
-            blues = 0;
-            reds = 0;
-        }
-        if (IsRed == true)
-        {
-            if (reds >= blues)
+            if (IsRed == true)
             {
-                Attack = true;
-
-            } else
-                if (reds < blues)
-            {
-                Attack = false;
-            }
-        }
-        if (IsRed == false)
-        {
-            if (reds <= blues)
-            {
+                blues = 0;
+                reds = 1;
                 Attack = true;
             }
             else
-                if (reds > blues)
+            if (IsRed == false)
             {
-                Attack = false;
+                blues = 1;
+                reds = 0;
+                Attack = true;
             }
+            
         }
+        if(sizeOfList > 0)
+        {
+            if (tripCoroutine == false)
+            {
+                if (IsRed == true)
+                {
+                    if (reds >= blues )
+                    {
+                        Attack = true;
+
+                    }
+                    else
+                    if (reds < blues)
+                    {
+                      //  Attack = false;
+                        tripCoroutine = true;
+                        StartCoroutine(RetreatCoroutine());
+                    }
+                }
+                if (IsRed == false)
+                {
+                    if (reds <= blues)
+                    {
+                        Attack = true;
+                    }
+                    else
+                    if (reds > blues)
+                    {
+                      //  Attack = false;
+                        tripCoroutine = true;
+                        StartCoroutine(RetreatCoroutine());
+                    }
+                }
+            }
+      
+        }
+      
+        
     }
 
-    void OnTriggerEnter(Collider other)
+    IEnumerator RetreatCoroutine()
+    {
+        yield return new WaitForSeconds(5);
+        tripCoroutine = false;
+        Attack = false;
+
+    }
+
+
+
+        void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.tag == "Character")
         {
             if (!bodys.Contains(other.gameObject)) bodys.Add(other.gameObject);
             if (other.GetComponent<Allegiance>().RedTeam == true)
             {
-                
-               
                 reds++;
             }
             else
@@ -70,10 +105,7 @@ public class Radar : MonoBehaviour
             {
                 blues++;
             }
-            if (Attack == true)
-            {
-                target = other.gameObject;
-            }
+         
 
 
 
@@ -85,51 +117,46 @@ public class Radar : MonoBehaviour
         if (other.gameObject.tag == "Character")
         {
             if (bodys.Contains(other.gameObject)) bodys.Remove(other.gameObject);
-            if (other.GetComponent<Allegiance>().RedTeam == true)
-                reds--;
-        }
-        else
+            {
+                if (other.GetComponent<Allegiance>().RedTeam == true)
+                {
+                    reds--;
+                }
+
+                else
             if (other.GetComponent<Allegiance>().RedTeam == false)
-        {
-            blues--;
+                {
+                    blues--;
+                }
+            }
+
         }
-        //  RemoveSides();
     }
-
-
-
-    void AssignSides()
+    void OnTriggerStay(Collider other)
     {
-       foreach (GameObject ObjectBody in bodys)
-       {
-           if( ObjectBody.GetComponent<Allegiance>().RedTeam == true)
-            { 
-                reds++;
-            }
-            else
-            if (ObjectBody.GetComponent<Allegiance>().RedTeam == false)
-            {
-                blues++;
-            }
-       }
-
-    }
-    void RemoveSides()
-    {
-        foreach (GameObject ObjectBody in bodys)
+        if (other.gameObject.tag == "Character")
         {
-            if (ObjectBody.GetComponent<Allegiance>().RedTeam == true)
+            if (IsRed == true && other.GetComponent<Allegiance>().RedTeam == false)
             {
-                blues--;
-            }
-            else
-             if (ObjectBody.GetComponent<Allegiance>().RedTeam == false)
+                if (Attack == true)
+                {
+                    target = other.gameObject;
+                }
+            }else
+            if (IsRed == false && other.GetComponent<Allegiance>().RedTeam == true)
             {
-                reds--;
-            }
+                if (Attack == true)
+                {
+                    target = other.gameObject;
+                }
+            }else return;
         }
-
     }
+
+
+
+
+
 }
 
 
